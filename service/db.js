@@ -12,7 +12,10 @@ module.exports = async () => {
   }
 
   try {
-    cachedConnection = await mongoose.connect(process.env.MONGODB_URL);
+    cachedConnection = await mongoose.connect(process.env.MONGODB_URL, {
+      connectTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 5000,
+    });
     console.log('Connected to database successfully');
     return cachedConnection;
   } catch (error) {

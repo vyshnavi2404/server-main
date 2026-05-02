@@ -11,16 +11,18 @@ const { verifyToken } = require('./routers/auth');
 
 const app = express();
 
-// ── CORS ────────────────────────────────────────────────────────────────
-const corsOptions = {
-  origin: '*',
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  allowedHeaders: 'Content-Type,Authorization',
-  credentials: true,
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-};
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); 
+// ── CORS (Manual implementation for maximum reliability on Vercel) ──────
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
 
 // ── Body parsing (built-in Express, no extra dependency needed) ─────────
 app.use(express.urlencoded({ extended: true }));
