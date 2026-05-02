@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Project = require('../model/project');
+const { restrictTo } = require('./auth');
 
 // Get all projects
 router.get('/', async (req, res) => {
@@ -12,8 +13,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Create a new project
-router.post('/', async (req, res) => {
+// Create a new project (Admin only)
+router.post('/', restrictTo('Admin'), async (req, res) => {
   const project = new Project({
     name: req.body.name,
     key: req.body.key,
@@ -41,8 +42,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update a project
-router.put('/:id', async (req, res) => {
+// Update a project (Admin only)
+router.put('/:id', restrictTo('Admin'), async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
     if (!project) {
@@ -59,8 +60,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete a project
-router.delete('/:id', async (req, res) => {
+// Delete a project (Admin only)
+router.delete('/:id', restrictTo('Admin'), async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
     if (!project) {

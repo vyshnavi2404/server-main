@@ -13,6 +13,7 @@ const issueSchema = new mongoose.Schema({
   sprintId: { type: mongoose.Schema.Types.ObjectId, ref: 'Sprint', required: true },
   projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
   subIssues: [{ type: mongoose.Schema.Types.ObjectId, ref: 'SubIssue' }],
+  dueDate: { type: Date },
   workflow: { type: [String], default: ['Open', 'In Progress', 'Closed'] } // Define allowed states
 });
 

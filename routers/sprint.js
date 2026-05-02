@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Sprint = require('../model/sprint');
 const Project = require('../model/project');
+const { restrictTo } = require('./auth');
 
 // Get all sprints
 router.get('/', async (req, res) => {
@@ -26,8 +27,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 // Create a new sprint
-// Create a new sprint
-router.post('/', async (req, res) => {
+// Create a new sprint (Admin only)
+router.post('/', restrictTo('Admin'), async (req, res) => {
   const { sprintName, sprintType, projectId } = req.body;
 
   try {
@@ -71,8 +72,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update a sprint
-router.put('/:id', async (req, res) => {
+// Update a sprint (Admin only)
+router.put('/:id', restrictTo('Admin'), async (req, res) => {
   try {
     const sprint = await Sprint.findById(req.params.id);
     if (!sprint) {
@@ -90,8 +91,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete a sprint
-router.delete('/:id', async (req, res) => {
+// Delete a sprint (Admin only)
+router.delete('/:id', restrictTo('Admin'), async (req, res) => {
   try {
     const sprint = await Sprint.findById(req.params.id);
     if (!sprint) {

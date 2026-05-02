@@ -71,7 +71,7 @@ router.post('/signup', [
   check('email').isEmail().withMessage('Invalid email format'),
   check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   check('fullName').notEmpty().withMessage('Full name is required'),
-  check('role').isIn(['manager', 'developer', 'tester', 'bd']).withMessage('Invalid role')
+  check('role').isIn(['Admin', 'Member']).withMessage('Invalid role')
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -92,8 +92,8 @@ router.post('/logout', (req, res) => {
   res.json({ message: 'Logout successful' });
 });
 
-// Fetch users route (restricted to managers)
-router.get('/users', verifyToken, restrictTo('manager'), async (req, res) => {
+// Fetch users route (restricted to Admin)
+router.get('/users', verifyToken, restrictTo('Admin'), async (req, res) => {
   try {
     const users = await EmployeeModel.find({}, 'fullName email role');
     res.json(users);
@@ -117,4 +117,4 @@ router.get('/me', verifyToken, async (req, res) => {
   }
 });
 
-module.exports = { router, verifyToken };
+module.exports = { router, verifyToken, restrictTo };

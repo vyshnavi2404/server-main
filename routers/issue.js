@@ -17,13 +17,34 @@ router.get('/:sprintId', async (req, res) => {
   try {
     const sprintId = req.params.sprintId;
     const issues = await Issue.find({ sprintId }).populate('assignedTo subIssues');
-    if (!issues || issues.length === 0) {
-      return res.status(404).json({ message: 'No issues found for this sprint' });
-    }
     res.json(issues);
   } catch (err) {
     console.error("Error fetching issues:", err);
     res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Get task statistics
+router.get('/stats/all', async (req, res) => {
+  try {
+    const totalTasks = await Issue.countDocuments();
+    const openTasks = await Issue.countDocuments({ status: 'Open' });
+    const inProgressTasks = await Issue.countDocuments({ status: 'In Progress' });
+    const closedTasks = await Issue.countDocuments({ status: 'Closed' });
+    const overdueTasks = await Issue.countDocuments({
+      status: { $ne: 'Closed' },
+      dueDate: { $lt: new Date() }
+    });
+
+    res.json({
+      totalTasks,
+      openTasks,
+      inProgressTasks,
+      closedTasks,
+      overdueTasks
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch stats', error: err.message });
   }
 });
 
@@ -35,18 +56,7 @@ router.post('/:sprintId', [
   check('projectId').notEmpty().withMessage('Project ID is required')
 ], async (req, res) => {
   const sprintId = req.params.sprintId;
-  const { title, Summary, status, issueType, priority, assignedTo, projectId } = req.body;
-
-  try {
-    const sprint = await Sprint.findById(sprintId);
-    if (!sprint) {
-      return res.status(404).json({ message: 'Sprint not found' });
-    }
-
-    const project = await Project.findById(projectId);
-    if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
-    }
+    const { title, Summary, status, issueType, priority, assignedTo, projectId, dueDate } = req.body;
 
     const issue = new Issue({
       title,
@@ -56,7 +66,8 @@ router.post('/:sprintId', [
       priority: priority || 'Medium',
       assignedTo,
       projectId,
-      sprintId
+      sprintId,
+      dueDate
     });
 
     const newIssue = await issue.save();
@@ -109,6 +120,7 @@ router.put('/:id', [
     issue.issueType = req.body.issueType || issue.issueType;
     issue.priority = req.body.priority || issue.priority;
     issue.assignedTo = req.body.assignedTo || issue.assignedTo;
+    issue.dueDate = req.body.dueDate || issue.dueDate;
     issue.updatedDate = Date.now();
 
     const updatedIssue = await issue.save();
