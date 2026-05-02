@@ -17,18 +17,15 @@ connection();
 
 // Middlewares
 const app = express();
-app.use(cors({ origin: process.env.FRONTEND_URL || '*' })); // Restrict in production
+app.use(cors({
+  origin: '*', // For development, allow all. In production, set to FRONTEND_URL
+  methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
+  allowedHeaders: 'Content-Type,Authorization'
+}));
+app.options('*', cors()); // Enable pre-flight for all routes
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
-// Global error handling for validation
-app.use((req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-});
 
 // Routes
 app.use('/auth', authentication.router);

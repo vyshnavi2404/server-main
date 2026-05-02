@@ -73,6 +73,11 @@ router.post('/signup', [
   check('fullName').notEmpty().withMessage('Full name is required'),
   check('role').isIn(['manager', 'developer', 'tester', 'bd']).withMessage('Invalid role')
 ], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   try {
     const user = new EmployeeModel(req.body);
     await user.save();
