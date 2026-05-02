@@ -14,13 +14,13 @@ const app = express();
 // ── CORS ────────────────────────────────────────────────────────────────
 const corsOptions = {
   origin: '*',
-  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: false,
-  optionsSuccessStatus: 204,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true,
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // handle preflight for every route
+app.options('*', cors(corsOptions)); 
 
 // ── Body parsing (built-in Express, no extra dependency needed) ─────────
 app.use(express.urlencoded({ extended: true }));
