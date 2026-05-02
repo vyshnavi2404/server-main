@@ -17,15 +17,19 @@ connection();
 
 // Middlewares
 const app = express();
-app.use(cors({
-  origin: '*', // For development, allow all. In production, set to FRONTEND_URL
-  methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
-  allowedHeaders: 'Content-Type,Authorization'
-}));
-app.options('*', cors()); // Enable pre-flight for all routes
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+const corsOptions = {
+  origin: '*',
+  methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
+  allowedHeaders: 'Content-Type,Authorization',
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Routes
 app.use('/auth', authentication.router);
@@ -51,9 +55,11 @@ app.use((req, res) => {
   res.status(404).json({ message: '404: Not Found' });
 });
 
-const port = process.env.PORT || 8080;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}...`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.PORT || 8080;
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}...`);
+  });
+}
 
 module.exports = app; // For Vercel serverless
